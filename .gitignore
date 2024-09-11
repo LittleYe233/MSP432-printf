@@ -1,0 +1,4 @@
+.cache/
+gcc/
+compile_commands.json
+*.code-workspace
