@@ -1,6 +1,11 @@
 #ifndef PRINTF_H_
 #define PRINTF_H_
 
-void printf(uint32_t moduleInstance, char *, ...);
+#include <stdint.h>
+
+#define MY_PRINTF_UART_BASE EUSCI_A0_BASE
+
+void uart_init(void);
+void myprintf(const char *, ...);
 
 #endif /* PRINTF_H_ */
