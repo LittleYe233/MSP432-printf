@@ -43,7 +43,7 @@ static const unsigned long dv[] = {
     1,          // +9
 };
 
-void puts(uint32_t moduleInstance, char *s) {
+void myputs(uint32_t moduleInstance, char *s) {
   char c;
 
   while ((c = *s++)) {
@@ -51,7 +51,7 @@ void puts(uint32_t moduleInstance, char *s) {
   }
 }
 
-void putc(uint32_t moduleInstance, unsigned b) { sendByte(moduleInstance, b); }
+void myputc(uint32_t moduleInstance, unsigned b) { sendByte(moduleInstance, b); }
 
 static void xtoa(uint32_t moduleInstance, unsigned long x,
                  const unsigned long *dp) {
@@ -65,16 +65,16 @@ static void xtoa(uint32_t moduleInstance, unsigned long x,
       c = '0';
       while (x >= d)
         ++c, x -= d;
-      putc(moduleInstance, c);
+      myputc(moduleInstance, c);
     } while (!(d & 1));
   } else
-    putc(moduleInstance, '0');
+    myputc(moduleInstance, '0');
 }
 
 static void puth(uint32_t moduleInstance, unsigned n) {
   static const char hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-  putc(moduleInstance, hex[n & 15]);
+  myputc(moduleInstance, hex[n & 15]);
 }
 
 void myprintf(const char *format, ...) {
@@ -88,26 +88,26 @@ void myprintf(const char *format, ...) {
     if (c == '%') {
       switch (c = *format++) {
       case 's': // String
-        puts(MY_PRINTF_UART_BASE, va_arg(a, char *));
+        myputs(MY_PRINTF_UART_BASE, va_arg(a, char *));
         break;
       case 'c': // Char
                 /// @note You can't use va_arg(a, char) here, for va_arg()
                 /// promotes char to int, hence an illegal hardware
                 /// instruction error (tested on GCC x86 Linux).
-        putc(MY_PRINTF_UART_BASE, (char)va_arg(a, int));
+        myputc(MY_PRINTF_UART_BASE, (char)va_arg(a, int));
         break;
       case 'i': // 16 bit Integer
       case 'u': // 16 bit Unsigned
         i = va_arg(a, int);
         if (c == 'i' && i < 0)
-          i = -i, putc(MY_PRINTF_UART_BASE, '-');
+          i = -i, myputc(MY_PRINTF_UART_BASE, '-');
         xtoa(MY_PRINTF_UART_BASE, (unsigned)i, dv + 5);
         break;
       case 'l': // 32 bit Long
       case 'n': // 32 bit uNsigned loNg
         n = va_arg(a, long);
         if (c == 'l' && n < 0)
-          n = -n, putc(MY_PRINTF_UART_BASE, '-');
+          n = -n, myputc(MY_PRINTF_UART_BASE, '-');
         xtoa(MY_PRINTF_UART_BASE, (unsigned long)n, dv);
         break;
       case 'x': // 16 bit heXadecimal
@@ -124,7 +124,7 @@ void myprintf(const char *format, ...) {
       }
     } else
     bad_fmt:
-      putc(MY_PRINTF_UART_BASE, c);
+      myputc(MY_PRINTF_UART_BASE, c);
   }
   va_end(a);
 }
